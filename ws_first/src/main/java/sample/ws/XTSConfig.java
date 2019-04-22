@@ -23,12 +23,14 @@
 package sample.ws;
 
 import org.jboss.jbossts.XTSService;
+import org.jboss.jbossts.txbridge.inbound.InboundBridgeRecoveryManager;
 import org.jboss.jbossts.xts.environment.WSCEnvironmentBean;
 import org.jboss.jbossts.xts.environment.XTSEnvironmentBean;
 import org.jboss.jbossts.xts.environment.XTSPropertyManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +43,18 @@ public class XTSConfig {
     @Value( "${server.port}" )
     private int port;
 
-    @Bean(initMethod = "start", destroyMethod = "stop")
+    @Bean(name = "xtsService", initMethod = "start", destroyMethod = "stop")
     public XTSService xtsService() {
         WSCEnvironmentBean wscEnvironmentBean = XTSPropertyManager.getWSCEnvironmentBean();
         wscEnvironmentBean.setBindPort11(port);
 
         XTSService service = new XTSService();
         return service;
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    @DependsOn({"xtsService"})
+    public InboundBridgeRecoveryManager inboundBridgeRecoveryManager() {
+        return new InboundBridgeRecoveryManager();
     }
 }

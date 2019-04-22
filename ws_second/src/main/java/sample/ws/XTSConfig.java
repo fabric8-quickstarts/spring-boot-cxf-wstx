@@ -23,12 +23,14 @@
 package sample.ws;
 
 import org.jboss.jbossts.XTSService;
+import org.jboss.jbossts.txbridge.inbound.InboundBridgeRecoveryManager;
 import org.jboss.jbossts.xts.environment.WSCEnvironmentBean;
 import org.jboss.jbossts.xts.environment.XTSEnvironmentBean;
 import org.jboss.jbossts.xts.environment.XTSPropertyManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 /**
  * @author <a href="mailto:zfeng@redhat.com">Zheng Feng</a>
@@ -45,5 +47,11 @@ public class XTSConfig {
 
         XTSService service = new XTSService();
         return service;
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    @DependsOn({"xtsService"})
+    public InboundBridgeRecoveryManager inboundBridgeRecoveryManager() {
+        return new InboundBridgeRecoveryManager();
     }
 }
